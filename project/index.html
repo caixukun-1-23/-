@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心侨 - 连接心与侨的桥梁</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 国旗渐变英雄区 */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, 
+                #DC143C 0%, 
+                #DC143C 20%, 
+                #FF6B35 40%, 
+                #4B0082 60%, 
+                #000080 80%, 
+                #191970 100%
+            );
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,215,0,0.15) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* 国旗装饰条纹 */
+        .flag-stripe {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, 
+                #DC143C 0%, #DC143C 25%,
+                #FFD700 25%, #FFD700 50%,
+                #000080 50%, #000080 75%,
+                #FF0000 75%, #FF0000 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            letter-spacing: 0.15em;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .hero .tagline {
+            font-size: 1.2rem;
+            color: #FFD700;
+            margin-bottom: 3rem;
+            font-weight: 500;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+            z-index: 2;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* 导航栏 */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        nav .logo {
+            color: #FFD700;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #FFD700;
+        }
+
+        /* 通用区块样式 */
+        section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #191970;
+            text-align: center;
+        }
+
+        section .section-intro {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 关于我们 */
+        #about {
+            background: linear-gradient(to bottom, #fff, #f8f9fa);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text {
+            padding: 2rem;
+        }
+
+        .about-text h3 {
+            font-size: 1.8rem;
+            color: #DC143C;
+            margin-bottom: 1rem;
+        }
+
+        .about-text p {
+            margin-bottom: 1rem;
+            color: #555;
+            font-size: 1.05rem;
+        }
+
+        .about-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .about-images img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .about-images img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 图片展示区 */
+        #gallery {
+            background: #fff;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .gallery-caption {
+            padding: 1.5rem;
+            background: #fff;
+            text-align: center;
+        }
+
+        .gallery-caption h4 {
+            color: #191970;
+            margin-bottom: 0.5rem;
+        }
+
+        .gallery-caption p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* 传统文化 */
+        #culture {
+            background: linear-gradient(135deg, #f8f9fa, #fff);
+        }
+
+        .culture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .culture-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid #DC143C;
+        }
+
+        .culture-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .culture-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .culture-card h4 {
+            font-size: 1.3rem;
+            color: #191970;
+            margin-bottom: 0.5rem;
+        }
+
+        .culture-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* 企业介绍 */
+        #companies {
+            background: #fff;
+        }
+
+        .companies-framework {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .company-placeholder {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px dashed #adb5bd;
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .company-placeholder:hover {
+            border-color: #191970;
+            background: linear-gradient(135deg, #fff, #f0f0ff);
+        }
+
+        .company-placeholder .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .company-placeholder h4 {
+            font-size: 1.2rem;
+            color: #868e96;
+            margin-bottom: 0.5rem;
+        }
+
+        .company-placeholder p {
+            color: #adb5bd;
+            font-size: 0.95rem;
+        }
+
+        /* 东南亚展望 */
+        #seasia {
+            background: linear-gradient(135deg, #191970, #000080);
+            color: #fff;
+        }
+
+        #seasia h2 {
+            color: #FFD700;
+        }
+
+        #seasia .section-intro {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .seasia-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .seasia-text p {
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+        }
+
+        .seasia-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .feature-box {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-box h4 {
+            color: #FFD700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-box p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+
+        /* 页脚 */
+        footer {
+            background: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        footer .flag-bar {
+            height: 4px;
+            background: linear-gradient(90deg, 
+                #DC143C 0%, #DC143C 25%,
+                #FFD700 25%, #FFD700 50%,
+                #000080 50%, #000080 75%,
+                #FF0000 75%, #FF0000 100%
+            );
+            margin-bottom: 1.5rem;
+        }
+
+        footer p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero .subtitle { font-size: 1.2rem; }
+            .about-grid, .seasia-content { grid-template-columns: 1fr; }
+            nav ul { gap: 1rem; }
+            nav a { font-size: 0.9rem; }
+        }
+    </style>
+    <!-- 国旗渐变切换功能 -->
+    <script src="flag-transition.js"></script>
+</head>
+<body>
+
+    <!-- 导航栏 -->
+    <nav>
+        <div class="logo">心侨 XinQiao</div>
+        <ul>
+            <li><a href="#about">关于我们</a></li>
+            <li><a href="#gallery">图片展示</a></li>
+            <li><a href="#culture">传统文化</a></li>
+            <li><a href="#companies">企业介绍</a></li>
+            <li><a href="#seasia">东南亚展望</a></li>
+        </ul>
+    </nav>
+
+    <!-- 英雄区 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>心 侨</h1>
+            <p class="subtitle">Connecting Hearts Across Borders</p>
+            <p class="tagline">传播中华文化 · 搭建商业桥梁 · 共建美好未来</p>
+        </div>
+        <div class="flag-stripe"></div>
+        <div class="scroll-indicator">▼</div>
+    </section>
+
+    <!-- 关于我们 -->
+    <section id="about">
+        <h2>关于我们</h2>
+        <p class="section-intro">心侨致力于成为中华文化与东南亚世界之间的纽带，促进文化理解与商业合作</p>
+        
+        <div class="about-grid">
+            <div class="about-text">
+                <h3>我们的使命</h3>
+                <p>心侨成立于连接中国与世界的重要节点，旨在通过文化交流与商业桥梁，搭建起中国与东南亚国家之间的理解与合作。</p>
+                <p>我们相信，文化的深度理解是商业合作的基础。通过展示中国传统文化的魅力，我们希望能建立更深层次的人际纽带。</p>
+                <p>我们的愿景是成为东南亚地区了解中国、中国企业了解东南亚的第一选择平台。</p>
+            </div>
+            <div class="about-images">
+                <img src="picture/0c58dcc17b3a8cdb7bff82067b9ee501.jpg" alt="心侨项目图片1">
+                <img src="picture/e7ef1c7edb0b7391c85e805b7a938e6f.jpg" alt="心侨项目图片2">
+            </div>
+        </div>
+    </section>
+
+    <!-- 图片展示 -->
+    <section id="gallery">
+        <h2>项目展示</h2>
+        <p class="section-intro">通过视觉展示，让我们一起感受心侨项目的魅力</p>
+        
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="picture/0c58dcc17b3a8cdb7bff82067b9ee501.jpg" alt="项目展示图1">
+                <div class="gallery-caption">
+                    <h4>项目展示一</h4>
+                    <p>心侨文化传播的视觉呈现</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <img src="picture/e7ef1c7edb0b7391c85e805b7a938e6f.jpg" alt="项目展示图2">
+                <div class="gallery-caption">
+                    <h4>项目展示二</h4>
+                    <p>连接中东南亚的文化桥梁</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 传统文化 -->
+    <section id="culture">
+        <h2>传统文化</h2>
+        <p class="section-intro">深入了解中华传统文化的精髓，感受千年文明的魅力</p>
+        
+        <div class="culture-grid">
+            <div class="culture-card">
+                <div class="icon">🏮</div>
+                <h4>传统节日</h4>
+                <p>春节、中秋节、端午节等传统节日的庆祝方式与文化内涵，展现中华文化的团圆与和谐理念。</p>
+            </div>
+            <div class="culture-card">
+                <div class="icon">🎋</div>
+                <h4>传统艺术</h4>
+                <p>书法、国画、剪纸、刺绣等传统艺术形式，体现中国人对美的独特追求与表达。</p>
+            </div>
+            <div class="culture-card">
+                <div class="icon">🍵</div>
+                <h4>茶道文化</h4>
+                <p>中国茶文化的深厚底蕴，从茶的制作到品茗的礼仪，传递和谐与宁静。</p>
+            </div>
+            <div class="culture-card">
+                <div class="icon">🐉</div>
+                <h4>哲学思想</h4>
+                <p>儒家、道家、佛家思想的精髓，蕴含在中国人日常生活与价值观念中的智慧。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 企业介绍 -->
+    <section id="companies">
+        <h2>企业介绍</h2>
+        <p class="section-intro">我们汇聚了一批优秀企业，为东南亚市场提供专业服务</p>
+        
+        <div class="companies-framework">
+            <div class="company-placeholder">
+                <div class="icon">🏢</div>
+                <h4>企业名称一</h4>
+                <p>此处添加企业介绍内容</p>
+                <p>行业领域 · 成立时间 · 核心业务</p>
+            </div>
+            <div class="company-placeholder">
+                <div class="icon">🏢</div>
+                <h4>企业名称二</h4>
+                <p>此处添加企业介绍内容</p>
+                <p>行业领域 · 成立时间 · 核心业务</p>
+            </div>
+            <div class="company-placeholder">
+                <div class="icon">🏢</div>
+                <h4>企业名称三</h4>
+                <p>此处添加企业介绍内容</p>
+                <p>行业领域 · 成立时间 · 核心业务</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 东南亚展望 -->
+    <section id="seasia">
+        <h2>东南亚展望</h2>
+        <p class="section-intro">立足东南亚，连接中国与东南亚未来的无限可能</p>
+        
+        <div class="seasia-content">
+            <div class="seasia-text">
+                <p>东南亚作为"一带一路"倡议的重要伙伴区域，拥有庞大的人口红利和快速发展的数字经济。心侨将扎根于此，为当地社区带来新的价值。</p>
+                <p>我们计划通过建立本地化团队、合作伙伴关系和文化活动，逐步拓展在东南亚各国的发展，最终实现区域性的深耕细作。</p>
+                <p>我们的目标不仅是商业成功，更是成为中东南亚文化交流和经济合作的典范。</p>
+            </div>
+            <div class="seasia-features">
+                <div class="feature-box">
+                    <h4>📍 本地化</h4>
+                    <p>建立本地运营团队，深入理解当地市场</p>
+                </div>
+                <div class="feature-box">
+                    <h4>🤝 合作</h4>
+                    <p>与本地企业建立长期战略合作</p>
+                </div>
+                <div class="feature-box">
+                    <h4>📚 教育</h4>
+                    <p>开展文化交流与语言培训项目</p>
+                </div>
+                <div class="feature-box">
+                    <h4>🚀 创新</h4>
+                    <p>结合中东南亚优势，打造创新模式</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="flag-bar"></div>
+        <p>© 2024 心侨 XinQiao - 连接心与侨的桥梁</p>
+        <p>Connecting Hearts Across Borders</p>
+    </footer>
+
+</body>
+</html>
